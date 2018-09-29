@@ -14,9 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.edu.uoc.mybooks.dummy.DummyContent;
+// import com.edu.uoc.mybooks.dummy.DummyContent;
 
 import java.util.List;
+
+import model.BookItem;
+import model.BookItemContent;
 
 /**
  * An activity representing a list of Books. This activity
@@ -66,22 +69,29 @@ public class BookListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        // Sustituyo la clase DummyContent por nuestra clase BookItemContent
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, BookItemContent.ITEMS, mTwoPane));
     }
 
+    // Adaptamos la clase SimpleItemRecyclerViewApapter para que utilice BookItems
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final BookListActivity  mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
+        // Cambio la lista de DummyContent.DummyItem por nuestra clase BookItem
+        private final List<BookItem> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
+                // Modificamos el cast de la clase a nuestra clase BookItem
+                // DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
+                BookItem item = (BookItem) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(BookDetailFragment.ARG_ITEM_ID, item.id);
+                    // La propiedad id para a ser identificador
+                    //arguments.putString(BookDetailFragment.ARG_ITEM_ID, item.id);
+                    arguments.putString(BookDetailFragment.ARG_ITEM_ID, item.identificador.toString());
                     BookDetailFragment fragment = new BookDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -90,15 +100,18 @@ public class BookListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, BookDetailActivity.class);
-                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.id);
+                    // La propiedad id para a ser identificador
+                    // intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.id);
+                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.identificador.toString());
 
                     context.startActivity(intent);
                 }
             }
         };
 
+        // Modifico la creación de la clase para que utilice BookItem
         SimpleItemRecyclerViewAdapter(BookListActivity parent,
-                                      List<DummyContent.DummyItem> items,
+                                      List<BookItem> items,
                                       boolean twoPane) {
             mValues = items;
             mParentActivity = parent;
@@ -114,8 +127,11 @@ public class BookListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
+            // Utilizamos las propiedades de nuestra clase BookItem
+            // holder.mIdView.setText(mValues.get(position).id);
+            // holder.mContentView.setText(mValues.get(position).content);
+            holder.mIdView.setText(mValues.get(position).identificador.toString());
+            holder.mContentView.setText(mValues.get(position).titulo);
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
