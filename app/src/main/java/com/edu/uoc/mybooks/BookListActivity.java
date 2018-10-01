@@ -41,6 +41,8 @@ public class BookListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_book_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -128,7 +130,7 @@ public class BookListActivity extends AppCompatActivity {
 
             mRowCount += 1;
 
-            // Compruebo si el parámetro es par o impar
+            // Compruebo si el número de fila es par o impar
             if ((mRowCount & 1) == 0) {
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.book_list_content_par, parent, false);
@@ -146,9 +148,9 @@ public class BookListActivity extends AppCompatActivity {
             // Utilizamos las propiedades de nuestra clase BookItem
             // holder.mIdView.setText(mValues.get(position).id);
             // holder.mContentView.setText(mValues.get(position).content);
-            holder.mIdView.setText(mValues.get(position).identificador.toString());
-            holder.mContentView.setText(mValues.get(position).titulo);
-            // También aplicamos los datos del auto
+            // holder.mIdView.setText(mValues.get(position).identificador.toString());
+            holder.mTitleView.setText(mValues.get(position).titulo);
+            // También aplicamos los datos del autor
             holder.mAuthorView.setText(mValues.get(position).autor);
 
             holder.itemView.setTag(mValues.get(position));
@@ -165,15 +167,15 @@ public class BookListActivity extends AppCompatActivity {
 
         // Representa la clase donde se previsualiza los elementos de cada libro en la lista
         class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
-            final TextView mContentView;
+            // final TextView mIdView;
+            final TextView mTitleView;
             // Control TextView asociado al autor
             final TextView mAuthorView;
 
             ViewHolder(View view) {
                 super(view);
-                mIdView = (TextView) view.findViewById(R.id.id_text);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                //mIdView = (TextView) view.findViewById(R.id.id_text);
+                mTitleView = (TextView) view.findViewById(R.id.title);
                 // Asignamos el control del autor al elemento del Layout
                 mAuthorView = (TextView) view.findViewById(R.id.author);
             }
