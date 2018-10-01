@@ -1,15 +1,24 @@
 package com.edu.uoc.mybooks;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 // import com.edu.uoc.mybooks.dummy.DummyContent;
+
+import java.io.InputStream;
 
 import model.BookItem;
 import model.BookItemContent;
@@ -45,13 +54,14 @@ public class BookDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
+
 
             // Sustituimos el DummyContent por nuestra clase BookItemContent
             //mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
-            mItem = BookItemContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+             mItem = BookItemContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+
+            // int index = Integer.valueOf(getArguments().getString(ARG_ITEM_ID));
+            // mItem=(BookItem) BookItemContent.ITEMS.get(index);
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
@@ -60,6 +70,7 @@ public class BookDetailFragment extends Fragment {
                 // appBarLayout.setTitle(mItem.content);
                 appBarLayout.setTitle(mItem.titulo);
             }
+
         }
     }
 
@@ -71,10 +82,53 @@ public class BookDetailFragment extends Fragment {
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
             // Adaptamos a las propiedades de nuestro BookItem
-            // ((TextView) rootView.findViewById(R.id.book_detail)).setText(mItem.details);
-            ((TextView) rootView.findViewById(R.id.book_detail)).setText(mItem.titulo);
+             // ((TextView) rootView.findViewById(R.id.book_detail)).setText(mItem.autor);
+            //((TextView) rootView.findViewById(R.id.author)).setText(mItem.autor);
+//            ((ImageView) rootView.findViewById(R.id.imageBook)).setImageURI(Uri.parse("https://www.creativosonline.org/blog/wp-content/uploads/2010/04/creativos_online_portadas_libros_inspiracion.png"));
+
+            // ((TextView) rootView.findViewById(R.id.book_detail)).setText(mItem.titulo);
+
+            ((TextView) rootView.findViewById(R.id.txtAutor)).setText(mItem.autor);
+            ((TextView) rootView.findViewById(R.id.txtFecha)).setText(mItem.fechaPublicacion.toString());
+            ((TextView) rootView.findViewById(R.id.txtDescripcion)).setText(mItem.descripcion);
+
+            if (mItem.urlImagenPortada != null) {
+                ImageView image = rootView.findViewById(R.id.imageBook);
+                new DownloadImageTask(image).execute(mItem.urlImagenPortada);
+            }
+
+
         }
 
         return rootView;
     }
-}
+
+    // Creamos una tarea en background para que trabaje de manera asíncrona
+    // facilitando la carga de los elementos
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+
+        // Objeto ImageView pasado por referencia
+        ImageView bmImage;
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        // Trabajo asíncrono
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap bmp = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                bmp = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return bmp;
+        }
+
+        // Finalización de la tarea
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
+    }}

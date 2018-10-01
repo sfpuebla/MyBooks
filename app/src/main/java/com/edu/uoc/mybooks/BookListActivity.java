@@ -64,6 +64,12 @@ public class BookListActivity extends AppCompatActivity {
             // If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
+
+            /*
+            ((BookDetailFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.book_list))
+                    .setActivateOnItemClick(true);
+             */
         }
 
         View recyclerView = findViewById(R.id.book_list);
@@ -86,6 +92,7 @@ public class BookListActivity extends AppCompatActivity {
         // Cambio la lista de DummyContent.DummyItem por nuestra clase BookItem
         private final List<BookItem> mValues;
         private final boolean mTwoPane;
+
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,6 +157,7 @@ public class BookListActivity extends AppCompatActivity {
             // holder.mContentView.setText(mValues.get(position).content);
             // holder.mIdView.setText(mValues.get(position).identificador.toString());
             holder.mTitleView.setText(mValues.get(position).titulo);
+
             // También aplicamos los datos del autor
             holder.mAuthorView.setText(mValues.get(position).autor);
 
