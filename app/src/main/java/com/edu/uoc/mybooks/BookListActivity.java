@@ -2,6 +2,7 @@ package com.edu.uoc.mybooks;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -77,6 +78,8 @@ public class BookListActivity extends AppCompatActivity {
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
+        Integer mRowCount = 0;
+
         private final BookListActivity  mParentActivity;
         // Cambio la lista de DummyContent.DummyItem por nuestra clase BookItem
         private final List<BookItem> mValues;
@@ -120,8 +123,21 @@ public class BookListActivity extends AppCompatActivity {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.book_list_content, parent, false);
+
+            View view;
+
+            mRowCount += 1;
+
+            // Compruebo si el parámetro es par o impar
+            if ((mRowCount & 1) == 0) {
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.book_list_content_par, parent, false);
+            } else {
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.book_list_content, parent, false);
+
+            }
+
             return new ViewHolder(view);
         }
 
@@ -132,9 +148,14 @@ public class BookListActivity extends AppCompatActivity {
             // holder.mContentView.setText(mValues.get(position).content);
             holder.mIdView.setText(mValues.get(position).identificador.toString());
             holder.mContentView.setText(mValues.get(position).titulo);
+            // También aplicamos los datos del auto
+            holder.mAuthorView.setText(mValues.get(position).autor);
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
+
+            // Aplicamos un color de ejemplo
+            // holder.itemView.setBackgroundColor(Color.RED);
         }
 
         @Override
@@ -142,14 +163,19 @@ public class BookListActivity extends AppCompatActivity {
             return mValues.size();
         }
 
+        // Representa la clase donde se previsualiza los elementos de cada libro en la lista
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mIdView;
             final TextView mContentView;
+            // Control TextView asociado al autor
+            final TextView mAuthorView;
 
             ViewHolder(View view) {
                 super(view);
                 mIdView = (TextView) view.findViewById(R.id.id_text);
                 mContentView = (TextView) view.findViewById(R.id.content);
+                // Asignamos el control del autor al elemento del Layout
+                mAuthorView = (TextView) view.findViewById(R.id.author);
             }
         }
     }
