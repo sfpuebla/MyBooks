@@ -3,6 +3,6 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="colorPaginaPar">#B1D0BF</color>
-    <color name="colorPaginaImpar">#EEE7E2</color>
+    <color name="colorPaginaPar">#FFFFFF</color>
+    <color name="colorPaginaImpar">#C3C9EF</color>
 </resources>
