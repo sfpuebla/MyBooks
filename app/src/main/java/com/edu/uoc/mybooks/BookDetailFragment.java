@@ -19,6 +19,7 @@ import android.widget.TextView;
 // import com.edu.uoc.mybooks.dummy.DummyContent;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 
 import model.BookItem;
 import model.BookItemContent;
@@ -70,7 +71,6 @@ public class BookDetailFragment extends Fragment {
                 // appBarLayout.setTitle(mItem.content);
                 appBarLayout.setTitle(mItem.titulo);
             }
-
         }
     }
 
@@ -79,25 +79,22 @@ public class BookDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.book_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
+        // Mostramos el contenido de nuestro libro
         if (mItem != null) {
-            // Adaptamos a las propiedades de nuestro BookItem
-             // ((TextView) rootView.findViewById(R.id.book_detail)).setText(mItem.autor);
-            //((TextView) rootView.findViewById(R.id.author)).setText(mItem.autor);
-//            ((ImageView) rootView.findViewById(R.id.imageBook)).setImageURI(Uri.parse("https://www.creativosonline.org/blog/wp-content/uploads/2010/04/creativos_online_portadas_libros_inspiracion.png"));
-
-            // ((TextView) rootView.findViewById(R.id.book_detail)).setText(mItem.titulo);
-
+            // Adaptamos a las propiedades de nuestro BookItem y añadimos las características del libro
             ((TextView) rootView.findViewById(R.id.txtAutor)).setText(mItem.autor);
-            ((TextView) rootView.findViewById(R.id.txtFecha)).setText(mItem.fechaPublicacion.toString());
             ((TextView) rootView.findViewById(R.id.txtDescripcion)).setText(mItem.descripcion);
 
+            // Tenemos que dar formato a la fecha
+            SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+            String formattedDate = df.format(mItem.fechaPublicacion);
+            ((TextView) rootView.findViewById(R.id.txtFecha)).setText(formattedDate);
+
+            // Cargamos la imagen del libro
             if (mItem.urlImagenPortada != null) {
                 ImageView image = rootView.findViewById(R.id.imageBook);
                 new DownloadImageTask(image).execute(mItem.urlImagenPortada);
             }
-
-
         }
 
         return rootView;

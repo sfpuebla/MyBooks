@@ -15,7 +15,7 @@ public class BookItem {
     public String descripcion;
     public String urlImagenPortada;
 
-    // Inicialización de propiedades
+    // Inicialización de propiedades en el constructor
     public BookItem(Integer identificador,
                     String titulo,
                     String autor,
