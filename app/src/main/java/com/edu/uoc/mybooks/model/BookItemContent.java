@@ -1,4 +1,4 @@
-package model;
+package com.edu.uoc.mybooks.model;
 
 import java.util.ArrayList;
 import java.util.Date;

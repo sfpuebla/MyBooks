@@ -3,8 +3,6 @@ package com.edu.uoc.mybooks;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
@@ -21,8 +19,8 @@ import android.widget.TextView;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 
-import model.BookItem;
-import model.BookItemContent;
+import com.edu.uoc.mybooks.model.BookItem;
+import com.edu.uoc.mybooks.model.BookItemContent;
 
 /**
  * A fragment representing a single Book detail screen.

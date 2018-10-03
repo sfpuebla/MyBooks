@@ -2,7 +2,6 @@ package com.edu.uoc.mybooks;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -19,8 +18,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import model.BookItem;
-import model.BookItemContent;
+import com.edu.uoc.mybooks.model.BookItem;
+import com.edu.uoc.mybooks.model.BookItemContent;
 
 /**
  * An activity representing a list of Books. This activity
