@@ -163,6 +163,13 @@ public class BookListActivity extends AppCompatActivity {
                                             url_image);
 
                                     BookItemContent.addBook(book);
+
+                                    // Comprobamos si lo tenemos en nuestra lista
+                                    if (!BookItemContent.exists(book)) {
+                                        // Guardamos el valor en nuestra base de datos local
+                                        book.save();
+                                   }
+
                                 }
                            }
 

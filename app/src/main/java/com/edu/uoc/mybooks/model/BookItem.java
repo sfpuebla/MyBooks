@@ -1,11 +1,13 @@
 package com.edu.uoc.mybooks.model;
 
+import com.orm.SugarRecord;
+
 import java.util.Date;
 
 /**
  * Clase de libro.
  */
-public class BookItem {
+public class BookItem extends SugarRecord {
 
     // Definición de propiedades
     public Integer identificador;
@@ -14,6 +16,8 @@ public class BookItem {
     public Date publication_date;
     public String title;
     public String url_image;
+
+    public BookItem() {}
 
     // Inicialización de propiedades en el constructor
     public BookItem(Integer identificador,

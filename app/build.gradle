@@ -35,6 +35,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.0.5'
     // Firebase
     implementation 'com.google.firebase:firebase-core:16.0.4'
+    // Sugar
+    implementation 'com.github.satyan:sugar:1.4'
 }
 
 // Firebase
