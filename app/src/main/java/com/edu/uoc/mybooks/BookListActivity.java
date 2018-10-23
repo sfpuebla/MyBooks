@@ -36,6 +36,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+// SugarORM
+import com.orm.SchemaGenerator;
+import com.orm.SugarContext;
+import com.orm.SugarDb;
+
 
 /**
  * An activity representing a list of Books. This activity
@@ -100,25 +105,13 @@ public class BookListActivity extends AppCompatActivity {
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
 
-        /* FileInputStream serviceAccount = new FileInputStream("service_account_key/mybooks-a6393-firebase-adminsdk-pk0dt-0ce4fcf03d.json");
-
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://mybooks-a6393.firebaseio.com")
-                .build();
-        */
-
-        // FirebaseApp.initializeApp(this);
-
-        mAuth = FirebaseAuth.getInstance();
-
         // Inicialización de las clases FireBird
+        mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
 
         // Registro con el usuario y contraseña
         String STR_FIREBASE_USER_EMAIL = "sfpuebla@gmail.com";
         String STR_FIREBASE_USER_PWD = "123456";
-
 
         // sfernandezpuebla@uoc.edu
         // 123456
@@ -164,18 +157,15 @@ public class BookListActivity extends AppCompatActivity {
 
                                     BookItemContent.addBook(book);
 
-                                    // Comprobamos si lo tenemos en nuestra lista
-                                    if (!BookItemContent.exists(book)) {
-                                        // Guardamos el valor en nuestra base de datos local
-                                        book.save();
-                                   }
-
+                                    SaveBookItem(book);
                                 }
                            }
 
                             // Indico que la información de la lista ha cambiado
                             View recyclerView = findViewById(R.id.book_list);
                             ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
+
+
                         }
 
                         @Override
@@ -189,7 +179,28 @@ public class BookListActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    protected void SaveBookItem(BookItem bookItem) {
+        // Incialización de SugarORM
+        SugarContext.init(this);
+
+        SchemaGenerator schemaGenerator = new SchemaGenerator(this);
+        schemaGenerator.createDatabase(new SugarDb(this).getDB());
+
+
+        // Comprobamos si lo tenemos en nuestra lista
+        if (!BookItemContent.exists(bookItem)) {
+            Toast.makeText(getApplicationContext(), "Dato guardado", Toast.LENGTH_LONG).show();
+            // Guardamos el valor en nuestra base de datos local
+            bookItem.save();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "Dato existente", Toast.LENGTH_LONG).show();
+        }
+
+
+        SugarContext.terminate();
     }
 
     protected void onStart() {

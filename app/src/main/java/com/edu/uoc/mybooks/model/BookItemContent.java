@@ -29,8 +29,8 @@ public class BookItemContent {
 
     public static boolean exists(BookItem bookItem) {
         List<BookItem> bookItems = BookItem.find(BookItem.class,
-                "author = ? and description = ? and and title = ? and url_image = ?",
-                bookItem.author, bookItem.description, bookItem.title, bookItem.url_image);
+                "author = ? and description = ? and title = ?",
+                bookItem.author, bookItem.description, bookItem.title);
 
         return (!bookItems.isEmpty());
     }
