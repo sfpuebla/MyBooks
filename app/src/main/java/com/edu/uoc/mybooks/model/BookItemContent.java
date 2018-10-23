@@ -25,13 +25,11 @@ public class BookItemContent {
 
     // private static final int COUNT = 25;
 
+    // Quito los datos de pruebas
+    /*
     static {
         // Añadimos los elementos de nuestro ejemplo
-        /*
-        for (int i = 1; i <= COUNT; i++) {
-            addBook(createDummyBook(i));
-        }
-        */
+
         Date date = new Date();
 
         addBook(new BookItem(1,
@@ -54,8 +52,9 @@ public class BookItemContent {
                 "The Disappointment Artist", "Jonathan Lethem", date, "Ensayo",
                 "https://img.theculturetrip.com/375x/images/56-3972577-the-disappointment-artist.jpg" ));
     }
+    */
 
-    private static void addBook(BookItem item) {
+public static void addBook(BookItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(item.identificador.toString(), item);
     }

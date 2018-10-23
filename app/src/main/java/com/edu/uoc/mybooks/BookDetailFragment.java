@@ -67,7 +67,7 @@ public class BookDetailFragment extends Fragment {
             if (appBarLayout != null) {
                 // Adaptamos a las propiedades de nuestro BookItem
                 // appBarLayout.setTitle(mItem.content);
-                appBarLayout.setTitle(mItem.titulo);
+                appBarLayout.setTitle(mItem.title);
             }
         }
     }
@@ -80,18 +80,18 @@ public class BookDetailFragment extends Fragment {
         // Mostramos el contenido de nuestro libro
         if (mItem != null) {
             // Adaptamos a las propiedades de nuestro BookItem y añadimos las características del libro
-            ((TextView) rootView.findViewById(R.id.txtAutor)).setText(mItem.autor);
-            ((TextView) rootView.findViewById(R.id.txtDescripcion)).setText(mItem.descripcion);
+            ((TextView) rootView.findViewById(R.id.txtAutor)).setText(mItem.author);
+            ((TextView) rootView.findViewById(R.id.txtDescripcion)).setText(mItem.description);
 
             // Tenemos que dar formato a la fecha
             SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-            String formattedDate = df.format(mItem.fechaPublicacion);
+            String formattedDate = df.format(mItem.publication_date);
             ((TextView) rootView.findViewById(R.id.txtFecha)).setText(formattedDate);
 
             // Cargamos la imagen del libro
-            if (mItem.urlImagenPortada != null) {
+            if (mItem.url_image != null) {
                 ImageView image = rootView.findViewById(R.id.imageBook);
-                new DownloadImageTask(image).execute(mItem.urlImagenPortada);
+                new DownloadImageTask(image).execute(mItem.url_image);
             }
         }
 

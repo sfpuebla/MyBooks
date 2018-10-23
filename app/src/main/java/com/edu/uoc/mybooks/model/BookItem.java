@@ -9,29 +9,32 @@ public class BookItem {
 
     // Definición de propiedades
     public Integer identificador;
-    public String titulo;
-    public String autor;
-    public Date fechaPublicacion;
-    public String descripcion;
-    public String urlImagenPortada;
+    public String author;
+    public String description;
+    public Date publication_date;
+    public String title;
+    public String url_image;
 
     // Inicialización de propiedades en el constructor
     public BookItem(Integer identificador,
-                    String titulo,
-                    String autor,
-                    Date fechaPublicacion,
-                    String descripcion,
-                    String urlImagenPortada) {
+                    String author,
+                    String description,
+                    Date publication_date,
+                    String title,
+                    String url_image) {
         this.identificador = identificador;
-        this.titulo = titulo;
-        this.autor = autor;
-        this.fechaPublicacion = fechaPublicacion;
-        this.descripcion = descripcion;
-        this.urlImagenPortada = urlImagenPortada;
+        this.title = title;
+        this.author = author;
+        this.publication_date = publication_date;
+        this.description = description;
+        this.url_image = url_image;
     }
 
     @Override
     public String toString() {
-        return titulo;
+        return title;
     }
 }
+
+
+

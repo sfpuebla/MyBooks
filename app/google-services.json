@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "561358465380",
+    "firebase_url": "https://mybooks-a6393.firebaseio.com",
+    "project_id": "mybooks-a6393",
+    "storage_bucket": "mybooks-a6393.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561358465380:android:c20f59cdd7c4e691",
+        "android_client_info": {
+          "package_name": "com.edu.uoc.mybooks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "561358465380-lformq83cacd36j128adj0hgsg2vofnd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHL0Gc6H7mQekBNNVlFIPI-4i9ocFPctg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

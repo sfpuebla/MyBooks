@@ -13,13 +13,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 // import com.edu.uoc.mybooks.dummy.DummyContent;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.edu.uoc.mybooks.model.BookItem;
 import com.edu.uoc.mybooks.model.BookItemContent;
+
+// Clases para la conexión con la base de datos Firebase
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 
 /**
  * An activity representing a list of Books. This activity
@@ -35,7 +51,16 @@ public class BookListActivity extends AppCompatActivity {
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
+    private String STR_FIREBASE_URL = "https://mybooks-a6393.firebaseio.com/";
+    private String STR_FIREBASE_CHILD = "test";
+
+
     private boolean mTwoPane;
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase database;
+    private DatabaseReference mReference;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +99,95 @@ public class BookListActivity extends AppCompatActivity {
         View recyclerView = findViewById(R.id.book_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
+
+        /* FileInputStream serviceAccount = new FileInputStream("service_account_key/mybooks-a6393-firebase-adminsdk-pk0dt-0ce4fcf03d.json");
+
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setDatabaseUrl("https://mybooks-a6393.firebaseio.com")
+                .build();
+        */
+
+        // FirebaseApp.initializeApp(this);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        // Inicialización de las clases FireBird
+        database = FirebaseDatabase.getInstance();
+
+        // Registro con el usuario y contraseña
+        String STR_FIREBASE_USER_EMAIL = "sfpuebla@gmail.com";
+        String STR_FIREBASE_USER_PWD = "123456";
+
+
+        // sfernandezpuebla@uoc.edu
+        // 123456
+        mAuth.signInWithEmailAndPassword(STR_FIREBASE_USER_EMAIL, STR_FIREBASE_USER_PWD).addOnCompleteListener(this,new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(getApplicationContext(), "Conexión establecida con Firebase", Toast.LENGTH_LONG).show();
+
+                    // Obtenemos una instancia de DatabaseReference
+                    mReference = database.getReference();
+                    mReference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                            // Recorremos las tablas
+                            for (DataSnapshot dataRow : dataSnapshot.getChildren()){
+
+                                // Recorremos los registros
+                                for(DataSnapshot data : dataRow.getChildren()){
+
+                                    String key = data.getKey().toString();
+
+                                    String author = data.child("author").getValue().toString();
+                                    String description = data.child("description").getValue().toString();
+                                    String publication_date = data.child("publication_date").getValue().toString();
+                                    String title = data.child("title").getValue().toString();
+                                    String url_image = data.child("url_image").getValue().toString();
+
+                                    Date date1= null;
+                                    try {
+                                        date1 = new SimpleDateFormat("dd/MM/yyyy").parse(publication_date);
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    BookItem book = new BookItem( Integer.parseInt(key),
+                                            author,
+                                            description,
+                                            date1,
+                                            title,
+                                            url_image);
+
+                                    BookItemContent.addBook(book);
+                                }
+                           }
+
+                            // Indico que la información de la lista ha cambiado
+                            View recyclerView = findViewById(R.id.book_list);
+                            ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(getApplicationContext(), "Conexión con Firebase cancelada: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }else{
+                    Toast.makeText(getApplicationContext(), "Error de conexión con Firebase", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+    }
+
+    protected void onStart() {
+        super.onStart();
+
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -89,7 +203,7 @@ public class BookListActivity extends AppCompatActivity {
 
         private final BookListActivity  mParentActivity;
         // Cambio la lista de DummyContent.DummyItem por nuestra clase BookItem
-        private final List<BookItem> mValues;
+        public final List<BookItem> mValues;
         private final boolean mTwoPane;
 
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -155,16 +269,13 @@ public class BookListActivity extends AppCompatActivity {
             // holder.mIdView.setText(mValues.get(position).id);
             // holder.mContentView.setText(mValues.get(position).content);
             // holder.mIdView.setText(mValues.get(position).identificador.toString());
-            holder.mTitleView.setText(mValues.get(position).titulo);
+            holder.mTitleView.setText(mValues.get(position).title);
 
             // También aplicamos los datos del autor
-            holder.mAuthorView.setText(mValues.get(position).autor);
+            holder.mAuthorView.setText(mValues.get(position).author);
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
-
-            // Aplicamos un color de ejemplo
-            // holder.itemView.setBackgroundColor(Color.RED);
         }
 
         @Override
