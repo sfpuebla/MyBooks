@@ -371,18 +371,41 @@ public class BookListActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             // Utilizamos las propiedades de nuestra clase BookItem
-            // holder.mIdView.setText(mValues.get(position).id);
-            // holder.mContentView.setText(mValues.get(position).content);
-            // holder.mIdView.setText(mValues.get(position).identificador.toString());
             holder.mTitleView.setText(mValues.get(position).title);
-
             // También aplicamos los datos del autor
             holder.mAuthorView.setText(mValues.get(position).author);
+            //holder.itemView.setTag(mValues.get(position));
 
-            holder.itemView.setTag(mValues.get(position));
-            holder.itemView.setOnClickListener(mOnClickListener);
+            // Pasamos la posición
+            holder.itemView.setTag(position);
+
+            // holder.itemView.setOnClickListener(mOnClickListener);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Integer position = (Integer)view.getTag();
+
+                        if (mTwoPane) {
+                            Bundle arguments = new Bundle();
+                            arguments.putString(BookDetailFragment.ARG_ITEM_ID, position.toString());
+                            BookDetailFragment fragment = new BookDetailFragment();
+                            fragment.setArguments(arguments);
+                            mParentActivity.getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.book_detail_container, fragment)
+                                    .commit();
+                        } else {
+                            Context context = view.getContext();
+                            Intent intent = new Intent(context, BookDetailActivity.class);
+                            intent.putExtra(BookDetailFragment.ARG_ITEM_ID, position.toString());
+
+                            context.startActivity(intent);
+                        }
+
+                }
+            });
         }
 
         @Override

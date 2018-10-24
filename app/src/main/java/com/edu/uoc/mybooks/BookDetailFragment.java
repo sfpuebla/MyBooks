@@ -54,19 +54,13 @@ public class BookDetailFragment extends Fragment {
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
 
-
             // Sustituimos el DummyContent por nuestra clase BookItemContent
-            //mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
              mItem = BookItemContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
-
-            // int index = Integer.valueOf(getArguments().getString(ARG_ITEM_ID));
-            // mItem=(BookItem) BookItemContent.ITEMS.get(index);
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
                 // Adaptamos a las propiedades de nuestro BookItem
-                // appBarLayout.setTitle(mItem.content);
                 appBarLayout.setTitle(mItem.title);
             }
         }
@@ -82,15 +76,7 @@ public class BookDetailFragment extends Fragment {
             // Adaptamos a las propiedades de nuestro BookItem y añadimos las características del libro
             ((TextView) rootView.findViewById(R.id.txtAutor)).setText(mItem.author);
             ((TextView) rootView.findViewById(R.id.txtDescripcion)).setText(mItem.description);
-
             // La fecha ya viene en el formato apropiado con los cambios en la clase
-            // Tenemos que dar formato a la fecha
-            /*
-            SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-            String formattedDate = df.format(mItem.publication_date);
-            ((TextView) rootView.findViewById(R.id.txtFecha)).setText(formattedDate);
-            */
-
             ((TextView) rootView.findViewById(R.id.txtFecha)).setText(mItem.publication_date);
 
             // Cargamos la imagen del libro
