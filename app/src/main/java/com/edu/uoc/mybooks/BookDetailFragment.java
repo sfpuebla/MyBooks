@@ -83,10 +83,15 @@ public class BookDetailFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.txtAutor)).setText(mItem.author);
             ((TextView) rootView.findViewById(R.id.txtDescripcion)).setText(mItem.description);
 
+            // La fecha ya viene en el formato apropiado con los cambios en la clase
             // Tenemos que dar formato a la fecha
+            /*
             SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
             String formattedDate = df.format(mItem.publication_date);
             ((TextView) rootView.findViewById(R.id.txtFecha)).setText(formattedDate);
+            */
+
+            ((TextView) rootView.findViewById(R.id.txtFecha)).setText(mItem.publication_date);
 
             // Cargamos la imagen del libro
             if (mItem.url_image != null) {

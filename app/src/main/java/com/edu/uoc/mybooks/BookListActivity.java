@@ -73,7 +73,6 @@ public class BookListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_book_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -163,7 +162,8 @@ public class BookListActivity extends AppCompatActivity {
                                 ArrayList<BookItem> bookItems = dataRow.getValue(t);
 
                                 // Aplicamos la lista obtenida
-                                ((SimpleItemRecyclerViewAdapter)((RecyclerView) recyclerView).getAdapter()).setItems(bookItems);
+                                ((SimpleItemRecyclerViewAdapter)((RecyclerView) recyclerView).getAdapter()).setItems(bookItems,
+                                        getApplicationContext());
 
                            }
 
@@ -173,24 +173,67 @@ public class BookListActivity extends AppCompatActivity {
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(getApplicationContext(), "Conexión con Firebase cancelada: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
+
+                            String errorMsg;
+                            Integer error = databaseError.getCode();
+                            switch (error) {
+                                case DatabaseError.DISCONNECTED:
+                                    errorMsg = "Desconexión del servidor";
+                                    break;
+                                case DatabaseError.NETWORK_ERROR:
+                                    errorMsg = "Error en la red";
+                                    break;
+                                case DatabaseError.UNAVAILABLE:
+                                    errorMsg = "Servicio no disponible";
+                                    break;
+                                default:
+                                    errorMsg = "Error en la conexión";
+                                    break;
+                            }
+                            errorMsg += "\n " + databaseError.getMessage();
+                            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+
+                            LoadSavedBooks();
+                            Toast.makeText(getApplicationContext(), "Usando datos almacenados", Toast.LENGTH_LONG).show();
                         }
                     });
 
                 }else{
                     Toast.makeText(getApplicationContext(), "Error de conexión con Firebase", Toast.LENGTH_LONG).show();
+
+                    LoadSavedBooks();
+                    Toast.makeText(getApplicationContext(), "Usando datos almacenados", Toast.LENGTH_LONG).show();
+
                 }
             }
         });
     }
 
-    protected void SaveBookItem(BookItem bookItem) {
+    protected void LoadSavedBooks() {
+
         // Incialización de SugarORM
-        SugarContext.init(this);
+        SugarContext.init(getApplicationContext());
 
-        SchemaGenerator schemaGenerator = new SchemaGenerator(this);
-        schemaGenerator.createDatabase(new SugarDb(this).getDB());
+        SchemaGenerator schemaGenerator = new SchemaGenerator(getApplicationContext());
+        schemaGenerator.createDatabase(new SugarDb(getApplicationContext()).getDB());
 
+        // Recorremos los registros obtenidos
+        List<BookItem> bookItems = BookItemContent.getBooks();
+
+        for (BookItem item: bookItems) {
+            BookItemContent.addBook(item);
+        }
+
+        SugarContext.terminate();
+
+        // Indico que la información de la lista ha cambiado
+        View recyclerView = findViewById(R.id.book_list);
+        ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
+    }
+
+
+
+    protected void SaveBookItem(BookItem bookItem) {
 
         // Comprobamos si lo tenemos en nuestra lista
         if (!BookItemContent.exists(bookItem)) {
@@ -202,7 +245,6 @@ public class BookListActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Dato existente", Toast.LENGTH_LONG).show();
         }
 
-        SugarContext.terminate();
     }
 
 
@@ -266,11 +308,24 @@ public class BookListActivity extends AppCompatActivity {
 
 
         // Actualizamos la lista
-        public void setItems(List<BookItem> items) {
-            // mValues = items;
-            for (BookItem item: items) {
+        public void setItems(ArrayList<BookItem> items,
+                             Context context) {
 
+            // Incialización de SugarORM
+            SugarContext.init(context);
+
+            SchemaGenerator schemaGenerator = new SchemaGenerator(context);
+            schemaGenerator.createDatabase(new SugarDb(context).getDB());
+
+            // Recorremos los registros obtenidos
+            for (BookItem item: items) {
+                // Si no está en nuestra BBDD, guardamos el registro
+                if (!BookItemContent.exists(item)) {
+                    BookItem.save(item);
+                }
             }
+
+            SugarContext.terminate();
         }
 
 
