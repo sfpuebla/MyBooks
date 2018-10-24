@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -106,6 +107,27 @@ public class BookListActivity extends AppCompatActivity {
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
 
+        // Obtenemos los datos desde la base de datos Firebase
+        GetDataFromFirebase();
+
+        final SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Volvemos a hacer la petición de los datos
+                Toast.makeText(getApplicationContext(), "Recargando datos...", Toast.LENGTH_SHORT).show();
+                GetDataFromFirebase();
+
+                swipeContainer.setRefreshing(false);
+            }
+        });
+    }
+
+    protected void GetDataFromFirebase() {
+
+        // Limpiamos el contenido existente
+        BookItemContent.clearBooks();
+
         // Inicialización de las clases FireBird
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -152,10 +174,7 @@ public class BookListActivity extends AppCompatActivity {
                                             url_image);
 
                                     BookItemContent.addBook(book);
-
-                                    // SaveBookItem(book);
                                 }
-
 
                                 // Ejecutar esta parte cancela el proceso...
                                 GenericTypeIndicator<ArrayList<BookItem>> t = new GenericTypeIndicator<ArrayList<BookItem>>() {};
@@ -165,7 +184,7 @@ public class BookListActivity extends AppCompatActivity {
                                 ((SimpleItemRecyclerViewAdapter)((RecyclerView) recyclerView).getAdapter()).setItems(bookItems,
                                         getApplicationContext());
 
-                           }
+                            }
 
                             // Indico que la información de la lista ha cambiado
                             ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
@@ -207,7 +226,9 @@ public class BookListActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
+
 
     protected void LoadSavedBooks() {
 

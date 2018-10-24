@@ -35,9 +35,15 @@ public class BookItemContent {
         return (!bookItems.isEmpty());
     }
 
-public static void addBook(BookItem item) {
+    public static void addBook(BookItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(item.identificador.toString(), item);
+    }
+
+    public static void clearBooks() {
+        // Limpiamos la lista existetne
+        ITEMS.clear();
+        ITEM_MAP.clear();
     }
 
 }
