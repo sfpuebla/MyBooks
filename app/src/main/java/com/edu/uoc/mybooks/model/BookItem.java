@@ -2,6 +2,8 @@ package com.edu.uoc.mybooks.model;
 
 import com.orm.SugarRecord;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -13,12 +15,14 @@ public class BookItem extends SugarRecord {
     public Integer identificador;
     public String author;
     public String description;
-    public Date publication_date;
+    // public Date publication_date;
+    public String publication_date;
     public String title;
     public String url_image;
 
     public BookItem() {}
 
+/*
     // Inicialización de propiedades en el constructor
     public BookItem(Integer identificador,
                     String author,
@@ -33,6 +37,34 @@ public class BookItem extends SugarRecord {
         this.description = description;
         this.url_image = url_image;
     }
+*/
+
+    // Segundo constructor recibiendo la fecha como string
+    public BookItem(Integer identificador,
+                    String author,
+                    String description,
+                    String publication_date,
+                    String title,
+                    String url_image) {
+        this.identificador = identificador;
+        this.title = title;
+        this.author = author;
+
+        /*
+        Date date = new Date();
+        try {
+            date = new SimpleDateFormat("dd/MM/yyyy").parse(publication_date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.publication_date = date;
+        */
+        this.publication_date = publication_date;
+
+        this.description = description;
+        this.url_image = url_image;
+    }
+
 
     @Override
     public String toString() {

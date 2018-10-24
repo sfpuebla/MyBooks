@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 // SugarORM
@@ -127,6 +129,8 @@ public class BookListActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                            View recyclerView = findViewById(R.id.book_list);
+
                             // Recorremos las tablas
                             for (DataSnapshot dataRow : dataSnapshot.getChildren()){
 
@@ -141,31 +145,30 @@ public class BookListActivity extends AppCompatActivity {
                                     String title = data.child("title").getValue().toString();
                                     String url_image = data.child("url_image").getValue().toString();
 
-                                    Date date1= null;
-                                    try {
-                                        date1 = new SimpleDateFormat("dd/MM/yyyy").parse(publication_date);
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-
                                     BookItem book = new BookItem( Integer.parseInt(key),
                                             author,
                                             description,
-                                            date1,
+                                            publication_date,
                                             title,
                                             url_image);
 
                                     BookItemContent.addBook(book);
 
-                                    SaveBookItem(book);
+                                    // SaveBookItem(book);
                                 }
+
+
+                                // Ejecutar esta parte cancela el proceso...
+                                GenericTypeIndicator<ArrayList<BookItem>> t = new GenericTypeIndicator<ArrayList<BookItem>>() {};
+                                ArrayList<BookItem> bookItems = dataRow.getValue(t);
+
+                                // Aplicamos la lista obtenida
+                                ((SimpleItemRecyclerViewAdapter)((RecyclerView) recyclerView).getAdapter()).setItems(bookItems);
+
                            }
 
                             // Indico que la información de la lista ha cambiado
-                            View recyclerView = findViewById(R.id.book_list);
                             ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
-
-
                         }
 
                         @Override
@@ -199,9 +202,9 @@ public class BookListActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Dato existente", Toast.LENGTH_LONG).show();
         }
 
-
         SugarContext.terminate();
     }
+
 
     protected void onStart() {
         super.onStart();
@@ -221,7 +224,7 @@ public class BookListActivity extends AppCompatActivity {
 
         private final BookListActivity  mParentActivity;
         // Cambio la lista de DummyContent.DummyItem por nuestra clase BookItem
-        public final List<BookItem> mValues;
+        private List<BookItem> mValues;
         private final boolean mTwoPane;
 
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -260,6 +263,16 @@ public class BookListActivity extends AppCompatActivity {
             mParentActivity = parent;
             mTwoPane = twoPane;
         }
+
+
+        // Actualizamos la lista
+        public void setItems(List<BookItem> items) {
+            // mValues = items;
+            for (BookItem item: items) {
+
+            }
+        }
+
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -300,6 +313,7 @@ public class BookListActivity extends AppCompatActivity {
         public int getItemCount() {
             return mValues.size();
         }
+
 
         // Representa la clase donde se previsualiza los elementos de cada libro en la lista
         class ViewHolder extends RecyclerView.ViewHolder {
