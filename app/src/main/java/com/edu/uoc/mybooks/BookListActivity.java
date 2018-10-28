@@ -155,35 +155,18 @@ public class BookListActivity extends AppCompatActivity {
                             // Recorremos las tablas
                             for (DataSnapshot dataRow : dataSnapshot.getChildren()){
 
-                                // Recorremos los registros
-                                for(DataSnapshot data : dataRow.getChildren()){
-
-                                    String key = data.getKey().toString();
-
-                                    String author = data.child("author").getValue().toString();
-                                    String description = data.child("description").getValue().toString();
-                                    String publication_date = data.child("publication_date").getValue().toString();
-                                    String title = data.child("title").getValue().toString();
-                                    String url_image = data.child("url_image").getValue().toString();
-
-                                    BookItem book = new BookItem( Integer.parseInt(key),
-                                            author,
-                                            description,
-                                            publication_date,
-                                            title,
-                                            url_image);
-
-                                    BookItemContent.addBook(book);
-                                }
-
-                                // Ejecutar esta parte cancela el proceso...
+                                // Utilizamos el GenericTypeIndicator
                                 GenericTypeIndicator<ArrayList<BookItem>> t = new GenericTypeIndicator<ArrayList<BookItem>>() {};
                                 ArrayList<BookItem> bookItems = dataRow.getValue(t);
+
+                                BookItemContent.clearBooks();
+                                for (BookItem item: bookItems) {
+                                    BookItemContent.addBook(item);
+                                }
 
                                 // Aplicamos la lista obtenida
                                 ((SimpleItemRecyclerViewAdapter)((RecyclerView) recyclerView).getAdapter()).setItems(bookItems,
                                         getApplicationContext());
-
                             }
 
                             // Indico que la información de la lista ha cambiado

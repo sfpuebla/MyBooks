@@ -37,7 +37,14 @@ public class BookItemContent {
 
     public static void addBook(BookItem item) {
         ITEMS.add(item);
-        ITEM_MAP.put(item.identificador.toString(), item);
+
+        // Generamos el identificador dinámicaente.
+        // Usa un índice de base 0
+        Integer count = ITEMS.size() - 1;
+        //ITEM_MAP.put( item.identificador.toString(), item);
+
+        // Añadimos el elemento en el índice indicado
+        ITEM_MAP.put(count.toString(), item);
     }
 
     public static void clearBooks() {
