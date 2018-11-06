@@ -315,6 +315,7 @@ public class BookListActivity extends AppCompatActivity {
         public void setItems(ArrayList<BookItem> items,
                              Context context) {
 
+            /*
             // Incialización de SugarORM
             SugarContext.init(context);
 
@@ -330,6 +331,10 @@ public class BookListActivity extends AppCompatActivity {
             }
 
             SugarContext.terminate();
+            */
+
+            mValues = items;
+            notifyDataSetChanged();
         }
 
 
