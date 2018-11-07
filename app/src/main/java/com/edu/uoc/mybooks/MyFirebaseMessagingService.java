@@ -11,6 +11,9 @@ import android.support.v4.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import static android.content.Intent.ACTION_DELETE;
+import static android.content.Intent.ACTION_VIEW;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
@@ -33,13 +36,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     private void sendNotification(String messageBody) {
 
+        Intent intent = new Intent(this, BookListActivity.class);
+        intent.setAction(ACTION_DELETE);
+        PendingIntent borrarIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
+
+        Intent intent2 = new Intent(this, BookListActivity.class);
+        intent2.setAction(ACTION_VIEW);
+        PendingIntent resendIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent2, 0);
+
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Ejemplo Firebase")
                 .setContentText(messageBody)
                 .setAutoCancel(true)
-                .setSound(defaultSoundUri);
+                .setSound(defaultSoundUri)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText("Seleccione una acción que ejecutar."))
+                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Eliminar de la lista local", borrarIntent))
+                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Ver el detalle", resendIntent));
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

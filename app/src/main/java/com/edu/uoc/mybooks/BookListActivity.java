@@ -44,6 +44,9 @@ import com.orm.SchemaGenerator;
 import com.orm.SugarContext;
 import com.orm.SugarDb;
 
+import static android.content.Intent.ACTION_DELETE;
+import static android.content.Intent.ACTION_VIEW;
+
 
 /**
  * An activity representing a list of Books. This activity
@@ -79,6 +82,17 @@ public class BookListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
+
+
+        if (getIntent() != null && getIntent().getAction() != null) {
+            if (getIntent().getAction().equalsIgnoreCase(ACTION_DELETE)) {
+                // Acción eliminar de la notificación recibida
+                Toast.makeText(this, "Acción eliminar", Toast.LENGTH_SHORT).show();
+            } else if (getIntent().getAction().equalsIgnoreCase(ACTION_VIEW)) {
+                // Acción reenviar de la notificación recibida
+                Toast.makeText(this, "Acción detalle", Toast.LENGTH_SHORT).show();
+            }
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
