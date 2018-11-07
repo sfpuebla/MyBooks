@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -26,7 +27,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // Mostrar una notificación al recibir un mensaje de Firebase
-        sendNotification(remoteMessage.getNotification().getBody());
+
+        sendNotification(remoteMessage.getNotification().getBody(),
+                remoteMessage.getData().get("book_position"));
+
     }
 
     /**
@@ -34,7 +38,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param messageBody Texto a mostrar en la notificación
      */
-    private void sendNotification(String messageBody) {
+    private void sendNotification(String messageBody, String bookPosition) {
 
         Intent intent = new Intent(this, BookListActivity.class);
         intent.setAction(ACTION_DELETE);
@@ -48,7 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Ejemplo Firebase")
+                .setContentTitle("Notificación Firebase")
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
