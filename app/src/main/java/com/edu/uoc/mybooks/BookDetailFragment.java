@@ -55,7 +55,7 @@ public class BookDetailFragment extends Fragment {
         if (getArguments().containsKey(ARG_ITEM_ID)) {
 
             // Sustituimos el DummyContent por nuestra clase BookItemContent
-             mItem = BookItemContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            mItem = BookItemContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);

@@ -47,10 +47,21 @@ public class BookItemContent {
         ITEM_MAP.put(count.toString(), item);
     }
 
+    public static void deleteBook(Integer position) {
+        ITEM_MAP.remove(BookItemContent.ITEMS.get(position));
+        ITEMS.remove(position);
+
+
+    }
+
     public static void clearBooks() {
         // Limpiamos la lista existetne
         ITEMS.clear();
         ITEM_MAP.clear();
+    }
+
+    public static int count() {
+        return ITEMS.size();
     }
 
 }

@@ -1,5 +1,6 @@
 package com.edu.uoc.mybooks;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ import com.orm.SugarDb;
 
 import static android.content.Intent.ACTION_DELETE;
 import static android.content.Intent.ACTION_VIEW;
+import static java.lang.Integer.parseInt;
 
 
 /**
@@ -65,13 +67,10 @@ public class BookListActivity extends AppCompatActivity {
     private String STR_FIREBASE_URL = "https://mybooks-a6393.firebaseio.com/";
     private String STR_FIREBASE_CHILD = "test";
 
-
     private boolean mTwoPane;
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
     private DatabaseReference mReference;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,12 +84,39 @@ public class BookListActivity extends AppCompatActivity {
 
 
         if (getIntent() != null && getIntent().getAction() != null) {
+
+            String bookPosition = "";
+            Bundle extras = getIntent().getExtras();
+            if(extras != null){
+                if(extras.containsKey("book_position"))
+                {
+                    bookPosition = getIntent().getExtras().getString("book_position");
+                }
+            }
+
             if (getIntent().getAction().equalsIgnoreCase(ACTION_DELETE)) {
-                // Acción eliminar de la notificación recibida
-                Toast.makeText(this, "Acción eliminar", Toast.LENGTH_SHORT).show();
+               // Acción eliminar
+                Toast.makeText(this, "Acción eliminar - BookPosition " + bookPosition, Toast.LENGTH_SHORT).show();
+
+                // Cierro la notificación
+                closeNotification();
+
+                Integer pos = Integer.parseInt(bookPosition);
+                BookItemContent.deleteBook(pos);
+
+                // Indico que la información de la lista ha cambiado
+                View recyclerView = findViewById(R.id.book_list);
+                ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
+
             } else if (getIntent().getAction().equalsIgnoreCase(ACTION_VIEW)) {
-                // Acción reenviar de la notificación recibida
-                Toast.makeText(this, "Acción detalle", Toast.LENGTH_SHORT).show();
+                // Acción visualizar
+                Toast.makeText(this, "Acción detalle - BookPosition " + bookPosition, Toast.LENGTH_SHORT).show();
+
+                // Cierro la notificación
+                closeNotification();
+
+                // Muestro el detalle
+                showDetail(bookPosition);
             }
         }
 
@@ -122,7 +148,8 @@ public class BookListActivity extends AppCompatActivity {
         setupRecyclerView((RecyclerView) recyclerView);
 
         // Obtenemos los datos desde la base de datos Firebase
-        GetDataFromFirebase();
+            GetDataFromFirebase();
+
 
         final SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -130,6 +157,8 @@ public class BookListActivity extends AppCompatActivity {
             public void onRefresh() {
                 // Volvemos a hacer la petición de los datos
                 Toast.makeText(getApplicationContext(), "Recargando datos...", Toast.LENGTH_SHORT).show();
+                // Limpiamos el contenido existente
+                BookItemContent.clearBooks();
                 GetDataFromFirebase();
 
                 swipeContainer.setRefreshing(false);
@@ -137,93 +166,109 @@ public class BookListActivity extends AppCompatActivity {
         });
     }
 
+    protected void closeNotification() {
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(0);
+    }
+
+    protected void showDetail(String bookPosition) {
+
+        // Muestra el detalle de la posición indicada
+        RecyclerView recyclerView = findViewById(R.id.book_list);
+        Integer pos = Integer.parseInt(bookPosition);
+
+        Intent intent = new Intent(recyclerView.getContext(), BookDetailActivity.class);
+        intent.putExtra(BookDetailFragment.ARG_ITEM_ID, bookPosition);
+        startActivity(intent);
+    }
+
     protected void GetDataFromFirebase() {
 
-        // Limpiamos el contenido existente
-        BookItemContent.clearBooks();
+        // Sólo realizamos la carga desde Firebase si no tenemos datos (o si los hemos borrado previamente)
+        if (BookItemContent.count() == 0) {
+            // Inicialización de las clases FireBird
+            mAuth = FirebaseAuth.getInstance();
+            database = FirebaseDatabase.getInstance();
 
-        // Inicialización de las clases FireBird
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+            // Registro con el usuario y contraseña
+            String STR_FIREBASE_USER_EMAIL = "sfpuebla@gmail.com";
+            String STR_FIREBASE_USER_PWD = "123456";
 
-        // Registro con el usuario y contraseña
-        String STR_FIREBASE_USER_EMAIL = "sfpuebla@gmail.com";
-        String STR_FIREBASE_USER_PWD = "123456";
+            // sfernandezpuebla@uoc.edu
+            // 123456
+            mAuth.signInWithEmailAndPassword(STR_FIREBASE_USER_EMAIL, STR_FIREBASE_USER_PWD).addOnCompleteListener(this,new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if(task.isSuccessful()){
+                        Toast.makeText(getApplicationContext(), "Conexión establecida con Firebase", Toast.LENGTH_LONG).show();
 
-        // sfernandezpuebla@uoc.edu
-        // 123456
-        mAuth.signInWithEmailAndPassword(STR_FIREBASE_USER_EMAIL, STR_FIREBASE_USER_PWD).addOnCompleteListener(this,new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(getApplicationContext(), "Conexión establecida con Firebase", Toast.LENGTH_LONG).show();
+                        // Obtenemos una instancia de DatabaseReference
+                        mReference = database.getReference();
+                        mReference.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                    // Obtenemos una instancia de DatabaseReference
-                    mReference = database.getReference();
-                    mReference.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                View recyclerView = findViewById(R.id.book_list);
 
-                            View recyclerView = findViewById(R.id.book_list);
+                                // Recorremos las tablas
+                                for (DataSnapshot dataRow : dataSnapshot.getChildren()){
 
-                            // Recorremos las tablas
-                            for (DataSnapshot dataRow : dataSnapshot.getChildren()){
+                                    // Utilizamos el GenericTypeIndicator
+                                    GenericTypeIndicator<ArrayList<BookItem>> t = new GenericTypeIndicator<ArrayList<BookItem>>() {};
+                                    ArrayList<BookItem> bookItems = dataRow.getValue(t);
 
-                                // Utilizamos el GenericTypeIndicator
-                                GenericTypeIndicator<ArrayList<BookItem>> t = new GenericTypeIndicator<ArrayList<BookItem>>() {};
-                                ArrayList<BookItem> bookItems = dataRow.getValue(t);
+                                    BookItemContent.clearBooks();
+                                    for (BookItem item: bookItems) {
+                                        BookItemContent.addBook(item);
+                                    }
 
-                                BookItemContent.clearBooks();
-                                for (BookItem item: bookItems) {
-                                    BookItemContent.addBook(item);
+                                    // Aplicamos la lista obtenida
+                                    ((SimpleItemRecyclerViewAdapter)((RecyclerView) recyclerView).getAdapter()).setItems(bookItems,
+                                            getApplicationContext());
                                 }
 
-                                // Aplicamos la lista obtenida
-                                ((SimpleItemRecyclerViewAdapter)((RecyclerView) recyclerView).getAdapter()).setItems(bookItems,
-                                        getApplicationContext());
+                                // Indico que la información de la lista ha cambiado
+                                ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
                             }
 
-                            // Indico que la información de la lista ha cambiado
-                            ((RecyclerView) recyclerView).getAdapter().notifyDataSetChanged();
-                        }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                String errorMsg;
+                                Integer error = databaseError.getCode();
+                                switch (error) {
+                                    case DatabaseError.DISCONNECTED:
+                                        errorMsg = "Desconexión del servidor";
+                                        break;
+                                    case DatabaseError.NETWORK_ERROR:
+                                        errorMsg = "Error en la red";
+                                        break;
+                                    case DatabaseError.UNAVAILABLE:
+                                        errorMsg = "Servicio no disponible";
+                                        break;
+                                    default:
+                                        errorMsg = "Error en la conexión";
+                                        break;
+                                }
+                                errorMsg += "\n " + databaseError.getMessage();
+                                Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
 
-                            String errorMsg;
-                            Integer error = databaseError.getCode();
-                            switch (error) {
-                                case DatabaseError.DISCONNECTED:
-                                    errorMsg = "Desconexión del servidor";
-                                    break;
-                                case DatabaseError.NETWORK_ERROR:
-                                    errorMsg = "Error en la red";
-                                    break;
-                                case DatabaseError.UNAVAILABLE:
-                                    errorMsg = "Servicio no disponible";
-                                    break;
-                                default:
-                                    errorMsg = "Error en la conexión";
-                                    break;
+                                LoadSavedBooks();
+                                Toast.makeText(getApplicationContext(), "Usando datos almacenados", Toast.LENGTH_LONG).show();
                             }
-                            errorMsg += "\n " + databaseError.getMessage();
-                            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        });
 
-                            LoadSavedBooks();
-                            Toast.makeText(getApplicationContext(), "Usando datos almacenados", Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Error de conexión con Firebase", Toast.LENGTH_LONG).show();
 
-                }else{
-                    Toast.makeText(getApplicationContext(), "Error de conexión con Firebase", Toast.LENGTH_LONG).show();
+                        LoadSavedBooks();
+                        Toast.makeText(getApplicationContext(), "Usando datos almacenados", Toast.LENGTH_LONG).show();
 
-                    LoadSavedBooks();
-                    Toast.makeText(getApplicationContext(), "Usando datos almacenados", Toast.LENGTH_LONG).show();
-
+                    }
                 }
-            }
-        });
+            });
 
+        }
     }
 
 
@@ -306,6 +351,7 @@ public class BookListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, BookDetailActivity.class);
+
                     // La propiedad id para a ser identificador
                     // intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.id);
                     intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.identificador.toString());
@@ -347,8 +393,25 @@ public class BookListActivity extends AppCompatActivity {
             SugarContext.terminate();
             */
 
+            // Cambios indicados desde el curso
             mValues = items;
             notifyDataSetChanged();
+        }
+
+        public void deleteItem(Integer position) {
+
+            /*
+            if (mValues.size() > position) {
+                mValues.remove(position);
+            }
+            */
+
+            mValues.remove(position);
+            notifyDataSetChanged();
+        }
+
+        public void showDetail(Integer position, Context context) {
+
         }
 
 
@@ -402,10 +465,8 @@ public class BookListActivity extends AppCompatActivity {
                             Context context = view.getContext();
                             Intent intent = new Intent(context, BookDetailActivity.class);
                             intent.putExtra(BookDetailFragment.ARG_ITEM_ID, position.toString());
-
                             context.startActivity(intent);
                         }
-
                 }
             });
         }

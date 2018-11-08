@@ -42,10 +42,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent intent = new Intent(this, BookListActivity.class);
         intent.setAction(ACTION_DELETE);
+        intent.putExtra("book_position", bookPosition);
         PendingIntent borrarIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
 
         Intent intent2 = new Intent(this, BookListActivity.class);
         intent2.setAction(ACTION_VIEW);
+        intent2.putExtra("book_position", bookPosition);
         PendingIntent resendIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent2, 0);
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -56,9 +58,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText("Seleccione una acción que ejecutar."))
-                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Eliminar de la lista local", borrarIntent))
-                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Ver el detalle", resendIntent));
+                .setStyle(new NotificationCompat.BigTextStyle().bigText("Seleccione una acción que ejecutar con el libro en la posición " +
+                    bookPosition + " de la lista de libros existentes." +
+                    "\nPuede Eliminar o ver los Detalles del libro indicado."))
+                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Eliminar", borrarIntent))
+                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Mostrar", resendIntent));
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
