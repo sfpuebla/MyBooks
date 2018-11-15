@@ -48,10 +48,11 @@ public class BookItemContent {
     }
 
     public static void deleteBook(Integer position) {
-        ITEM_MAP.remove(BookItemContent.ITEMS.get(position));
-        ITEMS.remove(position);
-
-
+        // Elimino el libro de la lista
+        if (ITEM_MAP.size() > position) {
+            ITEM_MAP.remove(BookItemContent.ITEMS.get(position));
+            ITEMS.remove(position);
+        }
     }
 
     public static void clearBooks() {

@@ -173,13 +173,17 @@ public class BookListActivity extends AppCompatActivity {
 
     protected void showDetail(String bookPosition) {
 
-        // Muestra el detalle de la posición indicada
-        RecyclerView recyclerView = findViewById(R.id.book_list);
         Integer pos = Integer.parseInt(bookPosition);
 
-        Intent intent = new Intent(recyclerView.getContext(), BookDetailActivity.class);
-        intent.putExtra(BookDetailFragment.ARG_ITEM_ID, bookPosition);
-        startActivity(intent);
+        // Compruebo que no es un índice fuera de nuestra lista
+        if (BookItemContent.count() > pos ) {
+            // Muestra el detalle de la posición indicada
+            RecyclerView recyclerView = findViewById(R.id.book_list);
+
+            Intent intent = new Intent(recyclerView.getContext(), BookDetailActivity.class);
+            intent.putExtra(BookDetailFragment.ARG_ITEM_ID, bookPosition);
+            startActivity(intent);
+        }
     }
 
     protected void GetDataFromFirebase() {
