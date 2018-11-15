@@ -1,9 +1,11 @@
 package com.edu.uoc.mybooks;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -48,21 +50,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent2 = new Intent(this, BookListActivity.class);
         intent2.setAction(ACTION_VIEW);
         intent2.putExtra("book_position", bookPosition);
-        PendingIntent resendIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent2, 0);
+        PendingIntent mostratIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent2, 0);
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_start_book) // Asignamos un icono
+                .setSound(defaultSoundUri) // Notificamos un sonido
+                .setLights(Color.BLUE, 5000, 5000) // Iluminación LED
+                .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 }) // Vibraciones
                 .setContentTitle("Notificación Firebase")
                 .setContentText(messageBody)
                 .setAutoCancel(true)
-                .setSound(defaultSoundUri)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText("Seleccione una acción que ejecutar con el libro en la posición " +
                     bookPosition + " de la lista de libros existentes." +
                     "\nPuede Eliminar o ver los Detalles del libro indicado."))
-                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Eliminar", borrarIntent))
-                .addAction(new NotificationCompat.Action(R.mipmap.ic_launcher, "Mostrar", resendIntent));
+
+                // Añado las acciones con los iconos personalizados
+                .addAction(new NotificationCompat.Action(R.drawable.ic_action_eliminar, "Eliminar", borrarIntent))
+                .addAction(new NotificationCompat.Action(R.drawable.ic_action_mostrar, "Mostrar", mostratIntent));
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
