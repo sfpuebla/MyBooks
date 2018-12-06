@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:checked="true"
+            android:id="@+id/item_navigation_drawer_inbox"
+            android:icon="@drawable/ic_inbox_black_24dp"
+            android:title="Compartir" />
+        <item
+            android:id="@+id/item_navigation_drawer_starred"
+            android:icon="@drawable/ic_action_toggle_star"
+            android:title="Copiar" />
+        <item
+            android:id="@+id/item_navigation_drawer_sent_mail"
+            android:icon="@drawable/ic_action_content_send"
+            android:title="WhatsApp" />
+    </group>
+
+
+</menu>
