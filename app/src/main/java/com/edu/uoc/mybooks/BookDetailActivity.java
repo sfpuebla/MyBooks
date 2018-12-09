@@ -1,14 +1,19 @@
 package com.edu.uoc.mybooks;
 
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 /**
  * An activity representing a single Book detail screen. This
@@ -18,6 +23,8 @@ import android.view.MenuItem;
  */
 public class BookDetailActivity extends AppCompatActivity {
 
+    WebView webView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,12 +32,25 @@ public class BookDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
+        webView  = (WebView) findViewById(R.id.web_view);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                // Snackbar.make(view, "Debe hacer visible el WebView y cargar el fichero HTML", Snackbar.LENGTH_LONG)
+                 //        .setAction("Action", null).show();
+
+                /*
+                Fragment objFragment = new WebViewActivity();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, objFragment)
+                        .commit();
+                 */
+
+                CreateWebView();
+
+                // WebView webview = (WebView) findViewById(R.id.web_view);
             }
         });
 
@@ -65,6 +85,22 @@ public class BookDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void CreateWebView() {
+
+        WebView wb = new WebView( getApplicationContext());
+
+       // WebView wb = (WebView) findViewById(R.id.web_view);
+
+        wb.getSettings().setJavaScriptEnabled(true);
+        setContentView(wb);
+
+        MyWebViewClient myWebViewClient = new MyWebViewClient(this);
+        wb.setWebViewClient(myWebViewClient);
+
+        wb.loadUrl("file:///android_asset/form.html");
+
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -80,4 +116,7 @@ public class BookDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }

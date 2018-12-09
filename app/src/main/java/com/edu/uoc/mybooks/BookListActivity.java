@@ -2,11 +2,18 @@ package com.edu.uoc.mybooks;
 
 import android.app.ActionBar;
 import android.app.NotificationManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,6 +31,8 @@ import android.widget.Toast;
 
 // import com.edu.uoc.mybooks.dummy.DummyContent;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -52,6 +61,7 @@ import com.orm.SugarDb;
 
 import static android.content.Intent.ACTION_DELETE;
 import static android.content.Intent.ACTION_VIEW;
+import static android.graphics.Bitmap.Config.ARGB_8888;
 import static java.lang.Integer.parseInt;
 
 
@@ -85,23 +95,13 @@ public class BookListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_book_list);
+        // Marcamos activity_main.xml como layout de inicio
+        // setContentView(R.layout.activity_book_list);
+        setContentView(R.layout.activity_main );
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
-
-        actionBar = getSupportActionBar();
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
-        if (navigationView != null) {
-            // setupNavigationDrawerContent(navigationView);
-        }
-
 
         if (getIntent() != null && getIntent().getAction() != null) {
 
@@ -184,6 +184,18 @@ public class BookListActivity extends AppCompatActivity {
                 swipeContainer.setRefreshing(false);
             }
         });
+
+
+        actionBar = getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        if (navigationView != null) {
+            setupNavigationDrawerContent(navigationView);
+        }
     }
 
     @Override
@@ -191,7 +203,7 @@ public class BookListActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 // Despliego el navigation drawer si se presiona sobre el botón de las tres rayas en la Toolbar
-                if (mDrawerLayoutDisplayed) {
+                if (!mDrawerLayoutDisplayed) {
                     drawerLayout.openDrawer(GravityCompat.START);
                 } else {
                     drawerLayout.closeDrawer(GravityCompat.START);
@@ -204,45 +216,26 @@ public class BookListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /*
     private void setupNavigationDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        textView = (TextView) findViewById(R.id.textView);
                         switch (menuItem.getItemId()) {
-                            case R.id.item_navigation_drawer_inbox:
+                            case R.id.item_navigation_drawer_share_apps:
                                 menuItem.setChecked(true);
-                                textView.setText(menuItem.getTitle());
                                 drawerLayout.closeDrawer(GravityCompat.START);
+                                // Envío texto e imágen
+                                CompartirTextoImagen();
                                 return true;
-                            case R.id.item_navigation_drawer_starred:
+                            case R.id.item_navigation_drawer_copy_clipboard:
                                 menuItem.setChecked(true);
-                                textView.setText(menuItem.getTitle());
                                 drawerLayout.closeDrawer(GravityCompat.START);
+                                CopiarTextoPortapapeles();
                                 return true;
-                            case R.id.item_navigation_drawer_sent_mail:
+                            case R.id.item_navigation_drawer_share_whatsapp:
                                 menuItem.setChecked(true);
-                                textView.setText(menuItem.getTitle());
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                return true;
-                            case R.id.item_navigation_drawer_drafts:
-                                menuItem.setChecked(true);
-                                textView.setText(menuItem.getTitle());
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                return true;
-                            case R.id.item_navigation_drawer_settings:
-                                menuItem.setChecked(true);
-                                textView.setText(menuItem.getTitle());
-                                Toast.makeText(MainActivity.this, "Launching " + menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                                startActivity(intent);
-                                return true;
-                            case R.id.item_navigation_drawer_help_and_feedback:
-                                menuItem.setChecked(true);
-                                Toast.makeText(MainActivity.this, menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                                CompartirTextoImagenWhatsApp();
                                 drawerLayout.closeDrawer(GravityCompat.START);
                                 return true;
                         }
@@ -251,7 +244,78 @@ public class BookListActivity extends AppCompatActivity {
                 });
     }
 
-    */
+    protected void CompartirTextoImagen() {
+        Uri imagenURI = Uri.parse("android.resource://" + getPackageName() + "/drawable/" + "ic_user");
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.text_to_share));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imagenURI);
+        shareIntent.setType("image/jpeg");
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION );
+        startActivity(Intent.createChooser(shareIntent, "send"));
+    }
+
+    protected void CopiarTextoPortapapeles() {
+        ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Texto copiado", getString(R.string.text_to_share));
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(BookListActivity.this, "El texto se ha copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+    }
+
+    protected void CompartirTextoImagenWhatsApp() {
+
+
+        // Uri imagenURI = Uri.parse("android.resource://" + getPackageName() + "/drawable/" + "ic_user");
+        Uri imagenAEnviar = prepararImagen();
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.text_to_share));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imagenAEnviar);
+        shareIntent.setType("image/jpeg");
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        shareIntent.setPackage("com.whatsapp");
+        startActivity(Intent.createChooser(shareIntent, "send"));
+
+
+        /*
+        // Imagen a través del FileProvider
+        File imagePath = new File(BookListActivity.this.getFilesDir(), "drawable");
+        File newFile = new File(imagePath, "ic_user");
+        Uri contentUri = FileProvider.getUriForFile(BookListActivity.this, getString(R.string.file_provider_authority), newFile);
+
+
+
+        try {
+            startActivity(shareIntent);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(BookListActivity.this, "WhatsApp no está instalado", Toast.LENGTH_SHORT).show();
+        }
+        */
+    }
+
+    private Uri prepararImagen() {
+        Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        File imagePath = new File(getFilesDir(), "temporal");
+        imagePath.mkdir();
+        File imageFile = new File(imagePath.getPath(), "app_icon.png");
+
+        try {
+            FileOutputStream fos = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return FileProvider.getUriForFile(getApplicationContext(), getPackageName(), imageFile);
+    }
 
     protected void closeNotification() {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
